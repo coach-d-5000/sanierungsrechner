@@ -2,7 +2,7 @@
 
 Heat-pump replacement calculator for St. Gallen. Built as a sandbox so far. Now needs your input on how to pull it into the existing 100in100 stack.
 
-**TL;DR:** Backend works end-to-end (heat-demand model, suissetec proxy with PDF, GWR address lookup, Sonnendach roof scanner). UI scaffolded in Lovable as a hidden page with mock data. There's also a working sandbox UI at `localhost:8787` that combines map + GWR + Sonnendach for sales testing. Three integration decisions are waiting for you. Dominik will execute whatever you decide.
+**TL;DR:** Backend works end-to-end (heat-demand model, suissetec proxy with PDF, GWR address lookup, Sonnendach roof scanner). UI scaffolded in Lovable as a hidden page with mock data. There's also a working sandbox UI at `localhost:8787` that combines map + GWR + Sonnendach for sales testing. Code lives at **https://github.com/coach-d-5000/sanierungsrechner** — clone it and you're set. Two integration decisions are waiting for you (deploy structure, go-live timing). Dominik will execute whatever you decide.
 
 ---
 
@@ -10,14 +10,11 @@ Heat-pump replacement calculator for St. Gallen. Built as a sandbox so far. Now 
 
 These are blocking the next step. None require code from you — just a call.
 
-1. **Where does this code live in git?** Options:
-   - New repo (e.g. `100in100/sanierungsrechner`) — clean separation, easier permissions
-   - Folder in the existing 100in100 repo (e.g. `apps/sanierungsrechner/`) — single deploy pipeline
-   - Folder in the existing Lovable repo — tightest integration, Lovable picks it up automatically
-2. **Edge Function deploy structure** — pick one (details below):
+1. **Edge Function deploy structure** — pick one (details below):
    - **Option A**: keep `model/` and `data/` at root, run a small bundle script before each deploy
    - **Option B**: move `model/` and `data/` under `supabase/functions/_shared/sanierungsrechner/`, deploy works out of the box
-3. **Go-live timing** — Lovable page is currently hidden, mock data only. When do we point it at the real backend? (Recommend: after you've reviewed one full request/response cycle locally.)
+2. **Go-live timing** — Lovable page is currently hidden, mock data only. When do we point it at the real backend? (Recommend: after you've reviewed one full request/response cycle locally.)
+3. **Long-term home of the repo** — currently a standalone repo at `coach-d-5000/sanierungsrechner`. Whether it eventually moves into the 100in100 monorepo or stays standalone is your call, but not blocking.
 
 Once decided, it's a half-day of execution.
 
@@ -151,13 +148,18 @@ Going live = swapping `api.ts` (one file) to call the deployed Edge Function.
 
 ### Step 1 — Get the code
 
-The repo currently lives locally on Dominik's machine. Three options, your call:
+Already on GitHub: **https://github.com/coach-d-5000/sanierungsrechner**
 
-**a) New standalone GitHub repo.** Cleanest. Dominik creates the repo, you get push access.
-**b) Folder in your existing 100in100 repo.** PR with the full tree under `apps/sanierungsrechner/` or similar.
-**c) Direct into the Lovable repo.** Add `model/`, `data/`, `supabase/` folders alongside the existing `src/`.
+```bash
+git clone git@github.com:coach-d-5000/sanierungsrechner.git
+cd sanierungsrechner
+```
 
-Recommended: **(a)** for now — keeps the calculator independently deployable. Move into the main repo later if it makes sense.
+Open the folder in Claude Code — it picks up `CLAUDE.md` automatically and you can ask it to read `HANDOVER.md` to brief you on the state.
+
+If git access isn't set up yet, ask Dominik to add you as collaborator on the repo (Settings → Collaborators).
+
+The repo is currently standalone. If you'd later prefer it folded into the existing 100in100 monorepo, that's a separate move — straightforward, but no need to decide now.
 
 ### Step 2 — Pick the Edge Function deploy structure
 
