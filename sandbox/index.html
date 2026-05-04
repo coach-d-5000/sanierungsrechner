@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Sanierungsrechner — Sandbox</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 14px; }
+    body { display: grid; grid-template-columns: 380px 1fr; height: 100vh; }
+    @media (max-width: 768px) {
+      body { grid-template-columns: 1fr; grid-template-rows: 50vh 50vh; }
+    }
+    aside { padding: 14px; overflow-y: auto; border-right: 1px solid #ddd; background: #fafafa; }
+    main { position: relative; }
+    #map { width: 100%; height: 100%; touch-action: manipulation; }
+    h1 { margin: 0 0 4px; font-size: 16px; }
+    h2 { margin: 14px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #666; border-top: 1px solid #ddd; padding-top: 10px; }
+    h2:first-of-type { border-top: none; padding-top: 0; }
+    .hint { color: #888; font-size: 11px; margin: 4px 0 8px; line-height: 1.4; }
+    input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font: inherit; font-size: 14px; }
+    .results { margin-top: 6px; max-height: 180px; overflow-y: auto; border: 1px solid #eee; border-radius: 4px; display: none; }
+    .results.open { display: block; }
+    .result-item { padding: 9px 10px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 13px; }
+    .result-item:active { background: #d6e6ff; }
+    .result-item:hover { background: #eef; }
+    .result-item:last-child { border-bottom: none; }
+    .kv { display: grid; grid-template-columns: 130px 1fr; gap: 4px 8px; font-size: 13px; margin: 6px 0; }
+    .kv dt { color: #666; }
+    .kv dd { margin: 0; font-feature-settings: "tnum"; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-right: 4px; margin-bottom: 4px; }
+    .badge-warn { background: #fff3cd; color: #856404; }
+    .badge-info { background: #d1ecf1; color: #0c5460; }
+    .badge-ok { background: #d4edda; color: #155724; }
+    .toggle { display: flex; gap: 6px; margin: 6px 0; }
+    .toggle button { flex: 1; padding: 8px; border: 1px solid #ccc; background: white; border-radius: 6px; cursor: pointer; font: inherit; font-size: 12px; min-height: 36px; }
+    .toggle button.active { background: #007aff; color: white; border-color: #007aff; }
+    .empty { color: #aaa; font-style: italic; font-size: 12px; padding: 6px 0; }
+    .sum-card { background: linear-gradient(135deg, #e6f4ff 0%, #f0f9ff 100%); padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #b3d9f0; }
+    .sum-card .big-num { font-size: 22px; font-weight: 600; color: #0050a0; font-feature-settings: "tnum"; }
+    .sum-card .big-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }
+    .reset-btn { width: 100%; padding: 10px; border: 1px solid #d99; background: #fff5f5; color: #c33; border-radius: 6px; cursor: pointer; font: inherit; font-size: 13px; min-height: 42px; }
+    .reset-btn:active { background: #ffe5e5; }
+    .quick-add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .quick-btn { padding: 10px 8px; border: 1px solid #cce; background: white; color: #003; border-radius: 6px; cursor: pointer; font: inherit; font-size: 12px; text-align: left; min-height: 50px; line-height: 1.2; }
+    .quick-btn:active { background: #e6f0ff; }
+    .quick-btn .label { font-weight: 600; display: block; }
+    .quick-btn .stats { font-size: 10px; color: #555; display: block; margin-top: 2px; }
+    .quick-btn-all { grid-column: 1 / -1; background: #f0fff0; border-color: #beb; }
+    .legend { position: absolute; bottom: 12px; right: 12px; background: white; padding: 8px 10px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 11px; z-index: 1000; }
+    .legend h3 { margin: 0 0 4px; font-size: 11px; }
+    .legend-row { display: flex; align-items: center; gap: 6px; margin: 1px 0; }
+    .legend-swatch { width: 12px; height: 12px; border-radius: 2px; }
+    .orientation-bar { display: flex; height: 14px; border-radius: 3px; overflow: hidden; margin: 4px 0; background: #eee; }
+    .orientation-seg { display: flex; align-items: center; justify-content: center; font-size: 9px; color: white; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <aside>
+    <h1>Sanierungsrechner — Sandbox</h1>
+    <div class="hint">Tippt eine Fläche an = wird zur Auswahl hinzugefügt. Mehrfach tippen = aufsummieren.</div>
+
+    <h2>Adresse</h2>
+    <input type="text" id="search" placeholder="z.B. Vadianstrasse 8 St. Gallen" autocomplete="off" />
+    <div id="results" class="results"></div>
+
+    <h2>Karten-Layer</h2>
+    <div class="toggle">
+      <button class="active" data-mode="map">Karte</button>
+      <button data-mode="aerial">Luftbild</button>
+    </div>
+    <div class="toggle">
+      <button id="sonnendach-toggle" class="active">☀ Sonnendach</button>
+      <button id="gwr-toggle">🏠 GWR</button>
+    </div>
+
+    <h2>Auswahl Sonnendach</h2>
+    <div id="sonnendach-summary"><div class="empty">Auf Dachflächen tippen, um sie zur Auswahl hinzuzufügen …</div></div>
+    <div id="quick-add" style="display:none; margin: 8px 0;"></div>
+    <button id="reset-selection" class="reset-btn" style="display:none">↻ Auswahl leeren</button>
+
+    <h2>Letzte Fläche (Details)</h2>
+    <div id="sonnendach-info"><div class="empty">—</div></div>
+
+    <h2>Gebäude (GWR)</h2>
+    <div id="building-info"><div class="empty">Tippe auf ein Gebäude oder suche eine Adresse …</div></div>
+  </aside>
+  <main>
+    <div id="map"></div>
+    <div class="legend">
+      <h3>Eignung</h3>
+      <div class="legend-row"><span class="legend-swatch" style="background:#ffeda0"></span>gering</div>
+      <div class="legend-row"><span class="legend-swatch" style="background:#feb24c"></span>mittel</div>
+      <div class="legend-row"><span class="legend-swatch" style="background:#fd8d3c"></span>gut</div>
+      <div class="legend-row"><span class="legend-swatch" style="background:#e31a1c"></span>sehr gut</div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const API = "http://localhost:8787";
+
+    // --- Annahmen für Förderung & Vergütung ---
+    // Pronovo KLEIV 2026 (≤100 kWp, angebaute Anlage, typische Werte):
+    //   Grundbeitrag: 200 CHF (nur ab 5 kWp; entfällt darunter)
+    //   Leistungsbeitrag: 280 CHF/kWp für die ersten 30 kWp
+    // Hinweis: nur Schätzung — offizieller Tarifrechner: pronovo.ch/de/services/tarifrechner
+    const PRONOVO_GRUNDBEITRAG_CHF = 200;
+    const PRONOVO_GRUNDBEITRAG_MIN_KWP = 5;
+    const PRONOVO_LEISTUNGSBEITRAG_CHF_PER_KWP = 280;
+
+    // sgsw 2026 Rückliefertarif für PV < 30 kWp:
+    //   Mindestvergütung: 6.0 Rp./kWh (gesetzlich)
+    //   + Ökologischer Mehrwert: 4.6 Rp./kWh
+    //   = 10.6 Rp./kWh insgesamt
+    const SGSW_BUYBACK_CHF_PER_KWH = 0.106;
+
+    // kWp-Schätzung: typischer CH-Ertrag ~1000 kWh/kWp/Jahr für Mittelland.
+    // Wir leiten die Modul-Leistung aus dem Sonnendach-Stromertrag ab.
+    const KWP_PER_KWH_YEAR = 1 / 1000;
+    // Alternative: ~5 m² pro kWp Modulfläche (für Plausi-Vergleich)
+    const KWP_PER_M2 = 0.18;
+
+    // --- Map setup ---
+    const swissmap = L.tileLayer(
+      "https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg",
+      { attribution: "© swisstopo", maxZoom: 19 }
+    );
+    const swissair = L.tileLayer(
+      "https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.swissimage/default/current/3857/{z}/{x}/{y}.jpeg",
+      { attribution: "© swisstopo", maxZoom: 20 }
+    );
+    const sonnendach = L.tileLayer(
+      "https://wmts.geo.admin.ch/1.0.0/ch.bfe.solarenergie-eignung-daecher/default/current/3857/{z}/{x}/{y}.png",
+      { attribution: "© BFE Sonnendach", maxZoom: 20, opacity: 0.85 }
+    );
+    const gwrLayer = L.tileLayer(
+      "https://wmts.geo.admin.ch/1.0.0/ch.bfs.gebaeude_wohnungs_register/default/current/3857/{z}/{x}/{y}.png",
+      { attribution: "© BFS GWR", maxZoom: 20, opacity: 0.7 }
+    );
+
+    const map = L.map("map", { center: [47.4234, 9.3744], zoom: 14, layers: [swissmap, sonnendach] });
+
+    document.querySelectorAll("[data-mode]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-mode]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        if (btn.dataset.mode === "map") { map.removeLayer(swissair); map.addLayer(swissmap); }
+        else { map.removeLayer(swissmap); map.addLayer(swissair); }
+      });
+    });
+
+    document.getElementById("sonnendach-toggle").addEventListener("click", e => {
+      const on = !map.hasLayer(sonnendach);
+      if (on) map.addLayer(sonnendach); else map.removeLayer(sonnendach);
+      e.target.classList.toggle("active", on);
+    });
+    document.getElementById("gwr-toggle").addEventListener("click", e => {
+      const on = !map.hasLayer(gwrLayer);
+      if (on) map.addLayer(gwrLayer); else map.removeLayer(gwrLayer);
+      e.target.classList.toggle("active", on);
+    });
+
+    // --- Address search ---
+    const searchInput = document.getElementById("search");
+    const resultsDiv = document.getElementById("results");
+    let searchTimer;
+    searchInput.addEventListener("input", () => {
+      clearTimeout(searchTimer);
+      const q = searchInput.value.trim();
+      if (q.length < 4) { resultsDiv.classList.remove("open"); return; }
+      searchTimer = setTimeout(async () => {
+        try {
+          const r = await fetch(`${API}/gwr/search?q=${encodeURIComponent(q)}`);
+          const matches = await r.json();
+          renderSearchResults(matches);
+        } catch (err) {
+          resultsDiv.innerHTML = `<div class="result-item">Fehler: ${err.message}</div>`;
+          resultsDiv.classList.add("open");
+        }
+      }, 250);
+    });
+
+    function renderSearchResults(matches) {
+      if (!matches.length) {
+        resultsDiv.innerHTML = `<div class="result-item">Keine Treffer</div>`;
+      } else {
+        resultsDiv.innerHTML = matches.map((m, i) =>
+          `<div class="result-item" data-idx="${i}">${m.label}</div>`
+        ).join("");
+        resultsDiv.querySelectorAll(".result-item").forEach((el, i) => {
+          el.addEventListener("click", () => selectAddress(matches[i]));
+        });
+      }
+      resultsDiv.classList.add("open");
+    }
+
+    async function selectAddress(match) {
+      resultsDiv.classList.remove("open");
+      searchInput.value = match.label;
+      const wgs = lv03ToWgs84(match.lv03.east, match.lv03.north);
+      map.setView([wgs.lat, wgs.lng], 19);
+      L.marker([wgs.lat, wgs.lng]).addTo(map).bindPopup(match.label).openPopup();
+      const r = await fetch(`${API}/gwr/feature/${match.featureId}`);
+      const b = await r.json();
+      renderBuilding(b);
+    }
+
+    // --- Coordinate transforms (local approximation, swisstopo-Näherungsformeln) ---
+    // Source: https://www.swisstopo.admin.ch/de/karten-daten-online/calculation-services/navref.html
+    // Genauigkeit: < 1 m typisch, mehr als ausreichend für Identify-Toleranz.
+    function wgs84ToLv95(lng, lat) {
+      const phi = (lat * 3600 - 169028.66) / 10000;
+      const lam = (lng * 3600 - 26782.5) / 10000;
+      const east = 2600072.37
+        + 211455.93 * lam
+        - 10938.51 * lam * phi
+        - 0.36 * lam * phi * phi
+        - 44.54 * lam * lam * lam;
+      const north = 1200147.07
+        + 308807.95 * phi
+        + 3745.25 * lam * lam
+        + 76.63 * phi * phi
+        - 194.56 * lam * lam * phi
+        + 119.79 * phi * phi * phi;
+      return { east, north };
+    }
+    function lv95ToWgs84(east, north) {
+      const y = (east - 2600000) / 1000000;
+      const x = (north - 1200000) / 1000000;
+      const lng = 2.6779094
+        + 4.728982 * y
+        + 0.791484 * y * x
+        + 0.1306 * y * x * x
+        - 0.0436 * y * y * y;
+      const lat = 16.9023892
+        + 3.238272 * x
+        - 0.270978 * y * y
+        - 0.002528 * x * x
+        - 0.0447 * y * y * x
+        - 0.0140 * x * x * x;
+      return { lng: lng * 100 / 36, lat: lat * 100 / 36 };
+    }
+    function lv03ToWgs84(east, north) {
+      // LV03 → LV95 differs by (2'000'000, 1'000'000) offset, then use LV95 formula
+      return lv95ToWgs84(east + 2000000, north + 1000000);
+    }
+
+    // --- Building rendering ---
+    function renderBuilding(b) {
+      const div = document.getElementById("building-info");
+      const badges = [];
+      if (b.heating.isAlreadyHeatPump) badges.push(`<span class="badge badge-info">Bereits WP</span>`);
+      if (b.heating.isDistrictHeating) badges.push(`<span class="badge badge-info">Fernwärme</span>`);
+      if (b.heating.fossilFuel) badges.push(`<span class="badge badge-warn">Fossil: ${b.heating.fossilFuel}</span>`);
+      div.innerHTML = `
+        <div>${badges.join(" ")}</div>
+        <dl class="kv">
+          <dt>Adresse</dt><dd>${b.address}, ${b.zip} ${b.city}</dd>
+          <dt>Bezeichnung</dt><dd>${b.buildingName ?? "—"}</dd>
+          <dt>Baujahr</dt><dd>${b.yearBuilt ?? "—"}</dd>
+          <dt>Klasse</dt><dd>${b.buildingClass ?? "—"}</dd>
+          <dt>Stockwerke</dt><dd>${b.floors ?? "—"}</dd>
+          <dt>Wohnungen</dt><dd>${b.dwellings ?? "—"}</dd>
+          <dt>Grundfläche</dt><dd>${b.groundFloorAreaM2 ?? "—"} m²</dd>
+          <dt>Heizung</dt><dd>${b.heating.primary.generatorLabel ?? "—"} → ${b.heating.primary.sourceLabel ?? "—"}</dd>
+        </dl>
+      `;
+    }
+
+    // --- Sonnendach selection ---
+    let selection = [];
+    const selectionGroup = L.layerGroup().addTo(map);
+    const eignungColor = (k) => {
+      const s = String(k ?? "").toLowerCase();
+      if (s.includes("hervorragend") || s.includes("sehr gut")) return "#e31a1c";
+      if (s.includes("gut")) return "#fd8d3c";
+      if (s.includes("mittel")) return "#feb24c";
+      return "#ffeda0";
+    };
+
+    document.getElementById("reset-selection").addEventListener("click", clearSelection);
+
+    function clearSelection() {
+      selection = [];
+      selectionGroup.clearLayers();
+      renderSummary();
+      document.getElementById("sonnendach-info").innerHTML = `<div class="empty">—</div>`;
+      document.getElementById("quick-add").style.display = "none";
+      currentBuildingFeatures = null;
+    }
+
+    function compassOctant(deg) {
+      const d = ((Number(deg) || 0) + 360) % 360;
+      if (d < 22.5 || d >= 337.5) return "N";
+      if (d < 67.5) return "NO";
+      if (d < 112.5) return "O";
+      if (d < 157.5) return "SO";
+      if (d < 202.5) return "S";
+      if (d < 247.5) return "SW";
+      if (d < 292.5) return "W";
+      return "NW";
+    }
+    const octantColor = {
+      N: "#888", NO: "#a8d", O: "#5af", SO: "#5d5", S: "#fd0", SW: "#fa3", W: "#f73", NW: "#a55"
+    };
+
+    function pickAttr(a, ...keys) {
+      for (const k of keys) if (a[k] != null && a[k] !== "") return a[k];
+      return null;
+    }
+    function attrEgid(a) { return pickAttr(a, "building_id", "gwr_egid", "egid", "gebaeude_egid"); }
+
+    function attrFlaeche(a) { return Number(pickAttr(a, "flaeche", "flaeche_qm", "area")) || 0; }
+    function attrErtrag(a) { return Number(pickAttr(a, "stromertrag", "stromertrag_kwh", "yield_kwh")) || 0; }
+    function attrAusrichtung(a) { return Number(pickAttr(a, "ausrichtung", "azimut", "azimuth")) || 0; }
+    function attrNeigung(a) { return Number(pickAttr(a, "neigung", "tilt")) || 0; }
+    function attrKlasse(a) { return pickAttr(a, "klasse", "eignung", "klasse_text") ?? "—"; }
+    function attrFinanz(a) { return Number(pickAttr(a, "finanzieller_ertrag", "ertrag_chf")) || 0; }
+
+    function renderSummary() {
+      const summary = document.getElementById("sonnendach-summary");
+      const reset = document.getElementById("reset-selection");
+      if (selection.length === 0) {
+        summary.innerHTML = `<div class="empty">Auf Dachflächen tippen, um sie zur Auswahl hinzuzufügen …</div>`;
+        reset.style.display = "none";
+        return;
+      }
+      reset.style.display = "block";
+
+      const totalArea = selection.reduce((s, f) => s + attrFlaeche(f.attrs), 0);
+      const totalKwh  = selection.reduce((s, f) => s + attrErtrag(f.attrs), 0);
+      const totalChfErtragNative = selection.reduce((s, f) => s + attrFinanz(f.attrs), 0);
+      const kwpFromYield = totalKwh * KWP_PER_KWH_YEAR;
+      const kwpFromArea = totalArea * KWP_PER_M2;
+      const kwpEstimate = kwpFromYield > 0 ? kwpFromYield : kwpFromArea;
+
+      // orientation breakdown
+      const byOctant = {};
+      for (const f of selection) {
+        const oct = compassOctant(attrAusrichtung(f.attrs));
+        byOctant[oct] = (byOctant[oct] || 0) + attrFlaeche(f.attrs);
+      }
+      const octBars = Object.entries(byOctant)
+        .filter(([, v]) => v > 0)
+        .sort(([a], [b]) => "NSEWSWO".indexOf(a) - "NSEWSWO".indexOf(b))
+        .map(([oct, v]) => ({ oct, m2: v, pct: v / totalArea }));
+
+      const orientationBar = totalArea > 0 ? `
+        <div class="orientation-bar">
+          ${octBars.map(o => `<div class="orientation-seg" style="background:${octantColor[o.oct]}; flex: ${o.pct} 0 0;" title="${o.oct} ${Math.round(o.m2)} m²">${o.pct > 0.1 ? o.oct : ""}</div>`).join("")}
+        </div>
+        <div style="font-size:11px; color:#666; margin-top:2px;">
+          ${octBars.map(o => `${o.oct} ${Math.round(o.m2)} m²`).join(" · ")}
+        </div>
+      ` : "";
+
+      // Pronovo subsidy
+      const pronovoBase = kwpEstimate >= PRONOVO_GRUNDBEITRAG_MIN_KWP ? PRONOVO_GRUNDBEITRAG_CHF : 0;
+      const pronovoLeistung = kwpEstimate * PRONOVO_LEISTUNGSBEITRAG_CHF_PER_KWP;
+      const pronovoTotal = pronovoBase + pronovoLeistung;
+
+      // sgsw buyback (assume ~70% of yield is fed back if no own consumption modelling, optimistic)
+      const buybackAnnual = totalKwh * SGSW_BUYBACK_CHF_PER_KWH;
+
+      const fmt = (n) => Math.round(n).toLocaleString("de-CH");
+
+      summary.innerHTML = `
+        <div class="sum-card">
+          <div class="big-label">${selection.length} Fläche${selection.length === 1 ? "" : "n"} ausgewählt</div>
+          <div class="big-num">${fmt(kwpEstimate * 10) / 10} kWp</div>
+          <div style="font-size:11px; color:#555;">geschätzte Anlagenleistung</div>
+        </div>
+        <dl class="kv">
+          <dt>Total Fläche</dt><dd>${fmt(totalArea)} m²</dd>
+          <dt>Stromertrag</dt><dd>${fmt(totalKwh)} kWh/Jahr</dd>
+          ${totalChfErtragNative > 0 ? `<dt>Ertrag (Sonnendach)</dt><dd>${fmt(totalChfErtragNative)} CHF/Jahr</dd>` : ""}
+        </dl>
+        ${orientationBar}
+        <div style="margin-top:10px; padding:8px; background:#f5fff5; border-radius:6px; font-size:12px;">
+          <strong>Pronovo Einmalvergütung (geschätzt)</strong><br>
+          Grundbeitrag: <strong>${fmt(pronovoBase)}</strong> CHF · Leistungsbeitrag: <strong>${fmt(pronovoLeistung)}</strong> CHF<br>
+          <strong style="color:#080;">Total ≈ ${fmt(pronovoTotal)} CHF einmalig</strong>
+        </div>
+        <div style="margin-top:6px; padding:8px; background:#fffaf0; border-radius:6px; font-size:12px;">
+          <strong>sgsw Rückliefervergütung</strong> (10.6 Rp./kWh)<br>
+          Falls 100 % eingespeist: <strong>${fmt(buybackAnnual)} CHF/Jahr</strong><br>
+          Realistisch (~30 % Einspeisung mit WP): <strong>${fmt(buybackAnnual * 0.3)} CHF/Jahr</strong>
+        </div>
+      `;
+    }
+
+    function renderSingleFeature(a) {
+      document.getElementById("sonnendach-info").innerHTML = `
+        <dl class="kv">
+          <dt>Eignung</dt><dd>${attrKlasse(a)}</dd>
+          <dt>Fläche</dt><dd>${attrFlaeche(a).toLocaleString("de-CH")} m²</dd>
+          <dt>Ausrichtung</dt><dd>${attrAusrichtung(a)}° (${compassOctant(attrAusrichtung(a))})</dd>
+          <dt>Neigung</dt><dd>${attrNeigung(a)}°</dd>
+          <dt>Stromertrag</dt><dd>${attrErtrag(a).toLocaleString("de-CH")} kWh/Jahr</dd>
+          ${attrFinanz(a) ? `<dt>Ertrag (Sonnendach)</dt><dd>${attrFinanz(a)} CHF/Jahr</dd>` : ""}
+        </dl>
+      `;
+    }
+
+    // --- Identify call (LV95 throughout, local conversion) ---
+    function buildIdentifyUrl(layer, lng, lat, options = {}) {
+      const lv95 = wgs84ToLv95(lng, lat);
+      const bounds = map.getBounds();
+      const sw = wgs84ToLv95(bounds.getWest(), bounds.getSouth());
+      const ne = wgs84ToLv95(bounds.getEast(), bounds.getNorth());
+      const url = new URL("https://api3.geo.admin.ch/rest/services/api/MapServer/identify");
+      url.searchParams.set("geometry", `${lv95.east},${lv95.north}`);
+      url.searchParams.set("geometryType", "esriGeometryPoint");
+      url.searchParams.set("layers", `all:${layer}`);
+      url.searchParams.set("tolerance", String(options.tolerance ?? 50));
+      url.searchParams.set("imageDisplay", `${map.getSize().x},${map.getSize().y},96`);
+      url.searchParams.set("mapExtent", `${sw.east},${sw.north},${ne.east},${ne.north}`);
+      url.searchParams.set("returnGeometry", String(!!options.geometry));
+      if (options.geometry) url.searchParams.set("geometryFormat", "geojson");
+      url.searchParams.set("sr", "2056");                    // KRITISCH: ohne dies werden Koordinaten als Web-Mercator interpretiert → 0 results
+      url.searchParams.set("lang", "de");
+      return url;
+    }
+    async function identifySonnendach(lng, lat, options) {
+      const url = buildIdentifyUrl("ch.bfe.solarenergie-eignung-daecher", lng, lat, { tolerance: 50, geometry: true, ...options });
+      const r = await fetch(url);
+      const j = await r.json();
+      return j.results || [];
+    }
+    async function identifyGwr(lng, lat) {
+      const url = buildIdentifyUrl("ch.bfs.gebaeude_wohnungs_register", lng, lat, { tolerance: 50 });
+      const r = await fetch(url);
+      const j = await r.json();
+      return j.results || [];
+    }
+
+    // --- Geometry from LV95 GeoJSON → WGS84 GeoJSON (local, sync) ---
+    function convertGeometryToWgs84(geometry) {
+      if (!geometry) return null;
+      const convert = ([e, n]) => {
+        const p = lv95ToWgs84(e, n);
+        return [p.lng, p.lat];
+      };
+      if (geometry.type === "Polygon") {
+        return { type: "Polygon", coordinates: geometry.coordinates.map(ring => ring.map(convert)) };
+      }
+      if (geometry.type === "MultiPolygon") {
+        return { type: "MultiPolygon", coordinates: geometry.coordinates.map(poly => poly.map(ring => ring.map(convert))) };
+      }
+      return null;
+    }
+
+    function addToSelection(feature) {
+      if (selection.some(s => s.id === feature.featureId)) return;
+      let layer = null;
+      const wgsGeom = convertGeometryToWgs84(feature.geometry);
+      if (wgsGeom) {
+        layer = L.geoJSON(wgsGeom, {
+          style: { color: eignungColor(attrKlasse(feature.attributes)), weight: 2, fillOpacity: 0.5 },
+        }).bindTooltip(`${attrKlasse(feature.attributes)} · ${attrFlaeche(feature.attributes)} m² · ${attrErtrag(feature.attributes)} kWh/J`);
+        selectionGroup.addLayer(layer);
+      }
+      selection.push({ id: feature.featureId, attrs: feature.attributes, layer });
+      renderSummary();
+    }
+
+    // --- Wider Sonnendach query: all segments matching a building ---
+    async function findAllSegmentsForBuilding(lng, lat, egid) {
+      const features = await identifySonnendach(lng, lat, { tolerance: 200, geometry: true });
+      return egid ? features.filter(f => String(attrEgid(f.attributes)) === String(egid)) : features;
+    }
+
+    function renderQuickAdd(buildingFeatures, currentEgid) {
+      const div = document.getElementById("quick-add");
+      const byOctant = {};
+      for (const f of buildingFeatures) {
+        const oct = compassOctant(attrAusrichtung(f.attributes));
+        if (!byOctant[oct]) byOctant[oct] = [];
+        byOctant[oct].push(f);
+      }
+
+      // Sort octants by total area, descending
+      const octantOrder = ["S", "SO", "SW", "O", "W", "NO", "NW", "N"];
+      const entries = Object.entries(byOctant)
+        .map(([oct, features]) => ({
+          oct,
+          features,
+          area: features.reduce((s, f) => s + attrFlaeche(f.attributes), 0),
+          yieldKwh: features.reduce((s, f) => s + attrErtrag(f.attributes), 0),
+        }))
+        .filter(e => e.area > 0)
+        .sort((a, b) => octantOrder.indexOf(a.oct) - octantOrder.indexOf(b.oct));
+
+      if (entries.length === 0) {
+        div.style.display = "none";
+        return;
+      }
+
+      const fmt = (n) => Math.round(n).toLocaleString("de-CH");
+      const buttons = entries.map(e => `
+        <button class="quick-btn" data-oct="${e.oct}" style="border-left: 4px solid ${octantColor[e.oct]}">
+          <span class="label">+ Alle ${e.oct}</span>
+          <span class="stats">${e.features.length} Fläche${e.features.length === 1 ? "" : "n"} · ${fmt(e.area)} m² · ${fmt(e.yieldKwh)} kWh/J</span>
+        </button>
+      `).join("");
+
+      const totalArea = entries.reduce((s, e) => s + e.area, 0);
+      const totalYield = entries.reduce((s, e) => s + e.yieldKwh, 0);
+      const totalCount = entries.reduce((s, e) => s + e.features.length, 0);
+
+      div.style.display = "block";
+      div.innerHTML = `
+        <div style="font-size:11px; color:#666; margin-bottom:4px;">
+          Schnellauswahl für Gebäude (EGID ${currentEgid}):
+        </div>
+        <div class="quick-add-grid">
+          ${buttons}
+          <button class="quick-btn quick-btn-all" data-oct="ALL">
+            <span class="label">+ Alle Flächen dieses Gebäudes</span>
+            <span class="stats">${totalCount} Flächen · ${fmt(totalArea)} m² · ${fmt(totalYield)} kWh/J</span>
+          </button>
+        </div>
+      `;
+
+      div.querySelectorAll(".quick-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const oct = btn.dataset.oct;
+          const toAdd = oct === "ALL"
+            ? buildingFeatures
+            : byOctant[oct] || [];
+          for (const f of toAdd) await addToSelection(f);
+        });
+      });
+    }
+
+    let currentBuildingFeatures = null;
+    let clickMarker = null;
+
+    // --- Click handler: every tap adds to selection ---
+    map.on("click", async (e) => {
+      const sonneDiv = document.getElementById("sonnendach-info");
+      const buildDiv = document.getElementById("building-info");
+      sonneDiv.innerHTML = `<div class="empty">Identifiziere Dachfläche …</div>`;
+
+      // Visible click marker
+      if (clickMarker) map.removeLayer(clickMarker);
+      clickMarker = L.circleMarker(e.latlng, { radius: 8, color: "#0066cc", weight: 3, fillColor: "#fff", fillOpacity: 0.7 }).addTo(map);
+
+      try {
+        const [sonneFeatures, gwrFeatures] = await Promise.all([
+          identifySonnendach(e.latlng.lng, e.latlng.lat),
+          identifyGwr(e.latlng.lng, e.latlng.lat),
+        ]);
+
+        let buildingEgid = null;
+        if (gwrFeatures.length > 0) {
+          const fid = gwrFeatures[0].featureId;
+          try {
+            const r = await fetch(`${API}/gwr/feature/${fid}`);
+            if (r.ok) {
+              const b = await r.json();
+              renderBuilding(b);
+              buildingEgid = b.egid;
+            }
+          } catch (e) { console.warn("GWR fetch failed:", e); }
+        } else {
+          buildDiv.innerHTML = `<div class="empty">Kein Gebäude an dieser Stelle (möglicherweise ausserhalb GWR-Daten).</div>`;
+        }
+
+        if (!sonneFeatures.length) {
+          sonneDiv.innerHTML = `<div class="empty">Kein Sonnendach-Eintrag an dieser Stelle. ${gwrFeatures.length > 0 ? "Gebäude existiert, aber keine Solar-Daten erfasst." : "Etwas weiter zoomen oder mitten auf ein Dach tippen."}</div>`;
+          return;
+        }
+        const f = sonneFeatures[0];
+        const segmentEgid = attrEgid(f.attributes);
+        const useEgid = buildingEgid ?? segmentEgid;
+        addToSelection(f);
+        renderSingleFeature(f.attributes);
+
+        if (useEgid) {
+          findAllSegmentsForBuilding(e.latlng.lng, e.latlng.lat, useEgid)
+            .then(features => {
+              currentBuildingFeatures = features;
+              renderQuickAdd(features, useEgid);
+            })
+            .catch(err => console.warn("Quick-add load failed:", err));
+        }
+      } catch (err) {
+        sonneDiv.innerHTML = `<div class="empty">Fehler: ${err.message}</div>`;
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

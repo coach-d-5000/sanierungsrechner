@@ -1,0 +1,119 @@
+{
+  "ours": {
+    "heatDemand": {
+      "method": "consumption_quantity",
+      "annualKwh": 19800,
+      "spaceHeatingKwh": 16600,
+      "hotWaterKwh": 3200,
+      "confidence": "high",
+      "notes": [
+        "Berechnet aus 22000 kWh × 1 kWh/kWh × Wirkungsgrad 0.9."
+      ]
+    },
+    "current": {
+      "fuelType": "natural_gas",
+      "annualConsumption": 22000,
+      "consumptionUnit": "kWh",
+      "annualCostChf": 2530,
+      "finalEnergyKwh": 22000,
+      "co2KgPerYear": 4444
+    },
+    "heatPump": {
+      "recommendedModelId": "vitocal_250a_10",
+      "recommendedModelName": "Vitocal 250-A AWO-E-AC 251.A10",
+      "source": "air",
+      "sizingKwAt35": 10,
+      "sizingKwAt55": 9.6,
+      "peakLoadKw": 7.76,
+      "jaz": 4.61,
+      "electricityKwhPerYear": 4296,
+      "annualCostChf": 1074,
+      "co2KgPerYear": 129,
+      "oversizedFactor": 1.29
+    },
+    "comparison": {
+      "annualSavingsChf": 1456,
+      "annualSavingsPct": 0.58,
+      "co2SavingsKgPerYear": 4315,
+      "installation": {
+        "source": "air",
+        "turnkeyChf": 39000,
+        "subsidies": {
+          "total": 5300,
+          "flat": 5300,
+          "cityChf": 0,
+          "cityMeters": 0,
+          "cityMetersSubsidized": 0,
+          "components": [
+            {
+              "name": "Kanton / Bund Sockel",
+              "chf": 2500
+            },
+            {
+              "name": "Gebäudeprogramm Luft-WP",
+              "chf": 2800
+            },
+            {
+              "name": "Stadt St. Gallen (Luft-WP nicht förderfähig)",
+              "chf": 0
+            }
+          ]
+        },
+        "netCostChf": 33700
+      },
+      "payback": {
+        "grossPaybackYears": 23.1,
+        "withTaxPaybackYears": 19,
+        "withTaxAndValueUpliftYears": 0,
+        "taxSavingChf": 6066,
+        "valueUpliftChf": 39000,
+        "taxDeductibleChf": 33700,
+        "effectiveNetCostChf": 27634,
+        "effectiveNetCostAfterValueUpliftChf": -11366
+      }
+    },
+    "caveats": [
+      "Schätzung basiert auf einem Verbrauchsjahr und öffentlichen Referenzwerten — kein Ersatz für eine suissetec-Detailberechnung."
+    ]
+  },
+  "suissetec": {
+    "uuid": "019dd4f7-884b-71e2-b722-34818e8bd14e",
+    "fullLoadHours": 2550,
+    "calorificValue": 1,
+    "heatGeneratorEfficacy": 0.9,
+    "energyUseSummary": {
+      "dataRows": [
+        {
+          "dataRow": {
+            "start": "2024-01-01T00:00:00+00:00",
+            "end": "2024-12-31T00:00:00+00:00",
+            "quantity": 22000,
+            "numberOfDays": 366
+          },
+          "heatingDegreeDays": 3176,
+          "normalisedEnergyUsage": 0
+        }
+      ],
+      "sum": {
+        "heatingDegreeDays": 3176,
+        "quantity": 22000,
+        "normalisedEnergyUsage": 0,
+        "days": 366
+      },
+      "average": {
+        "heatingDegreeDays": 3386,
+        "energyUsage": 23454,
+        "days": 365
+      }
+    },
+    "endEnergy": 23454,
+    "useEnergy": 21108.600000000002,
+    "heatingDemand": 8.3,
+    "heatingDemandSpecific": 46.1,
+    "hotWaterDeduction": 0,
+    "requiredHeatOutputWithoutLock": 8.3,
+    "lockPerDay": 2,
+    "requiredHeatOutputWithLock": 9.054545454545455,
+    "buildingTypePerformanceGuaranteeECH": "Bestehende, gut wärmegedämmte Wohnhäuser"
+  }
+}

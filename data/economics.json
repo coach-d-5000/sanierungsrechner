@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "purpose": "Wirtschaftliche Annahmen für die Amortisationsrechnung: Steuerersparnis und Wertsteigerung der Liegenschaft.",
+    "lastReviewed": "2026-04-28",
+    "sources": [
+      "Steuerersparnis: DBG Art. 32 (Bund) + kantonale Steuergesetze. Werterhaltende und energetische Massnahmen sind abziehbar; Subventionen reduzieren den Abzug.",
+      "Wertsteigerung 1:1: HEV/SVIT-Faustregel für energetische Sanierungen; ZKB-Studien zeigen Bandbreite 50–100% je nach Massnahme. Heat-Pump-Tausch typisch 60–90%."
+    ],
+    "configurable": "Grenzsteuersatz und Wertsteigerungsfaktor sollten pro Kunde konfigurierbar sein. Defaults sind Mittelwerte."
+  },
+  "marginalTaxRate": 0.18,
+  "marginalTaxRateRange": [0.10, 0.30],
+  "houseValueUpliftFactor": 1.0,
+  "houseValueUpliftRange": [0.5, 1.0],
+  "expectedPumpLifetimeYears": 20,
+  "expectedBoreholeLifetimeYears": 50,
+  "_lifetimeNotes": "Wärmepumpe: 18–22 Jahre. Erdsonde + PE-100: SIA 384/6 nennt ≥ 50 Jahre.",
+  "replacementCostChf": {
+    "air": 32000,
+    "brine": 32000,
+    "_note": "Ersatzkosten ohne Bohrung/Fundament. R-290 bereits etabliert, keine grossen Infrastrukturarbeiten. Werte vom Domänenexperten (100in100) bestätigt."
+  },
+  "lifecycleHorizonYears": 50,
+  "electricityPriceInflationRate": 0,
+  "_lifecycleAssumptions": "Ersatz alle 20 Jahre, keine Subventionen auf Ersatz, alle Preise nominal heutig (keine Inflationsannahmen). Bewusst konservativ und einheitlich, damit kein Energieträger gegenüber dem anderen über-/unterbewertet wird.",
+  "taxDeductionRules": {
+    "deductFromGross": true,
+    "deductSubsidiesFirst": true,
+    "note": "Steuerlich abziehbar: (Bruttoinvestition − Subventionen). Im Bund seit 2020 auf 3 Steuerperioden verteilbar; hier vereinfacht einperiodig gerechnet."
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "_meta": {
+    "purpose": "Default heat-demand parameters for the pre-step estimator. Applies before suissetec's full Verbrauchsmethode kicks in.",
+    "scope": "Single-family homes (EFH) and small multi-family (MFH) in St. Gallen. Adjust factors for other building types.",
+    "needsAnchoring": "Build-era kWh/m²·yr defaults and component U-values are working values consistent with BFE building stock data and MuKEn 2014 / SIA 380/1. They should be cross-checked against canonical sources before the v1 ships to customers — not yet done.",
+    "lastReviewed": "2026-04-28"
+  },
+  "buildEras": [
+    { "yearMax": 1947, "label": "vor_1947", "kwhPerM2Year": 225 },
+    { "yearMax": 1980, "label": "1947_1980", "kwhPerM2Year": 175 },
+    { "yearMax": 1990, "label": "1981_1990", "kwhPerM2Year": 135 },
+    { "yearMax": 2000, "label": "1991_2000", "kwhPerM2Year": 110 },
+    { "yearMax": 2010, "label": "2001_2010", "kwhPerM2Year": 75 },
+    { "yearMax": 2020, "label": "2011_2020", "kwhPerM2Year": 50 },
+    { "yearMax": 9999, "label": "ab_2021", "kwhPerM2Year": 35 }
+  ],
+  "minergieKwhPerM2Year": {
+    "minergie": 30,
+    "minergie_p": 15
+  },
+  "domesticHotWater": {
+    "kwhPerPersonYear": 800,
+    "note": "SIA 380/1 typical. Range 700–900 depending on usage profile."
+  },
+  "envelopeLossShares": {
+    "_note": "Approximate share of total transmission+ventilation loss for a typical EFH. Sums to 1.0.",
+    "walls": 0.30,
+    "roof": 0.22,
+    "windows": 0.18,
+    "cellar": 0.15,
+    "ventilationInfiltration": 0.15
+  },
+  "renovationImpact": {
+    "_note": "Multiplier applied to a component's loss share when renovated in the given decade. 1.0 = no improvement, 0.0 = perfect. Values are approximations of U-value reductions vs the building's original era.",
+    "roof": {
+      "original": 1.00,
+      "1970s": 0.85,
+      "1980s": 0.65,
+      "1990s": 0.45,
+      "2000s": 0.30,
+      "2010s_plus": 0.20
+    },
+    "walls": {
+      "original": 1.00,
+      "1970s": 0.80,
+      "1980s": 0.60,
+      "1990s": 0.40,
+      "2000s": 0.25,
+      "2010s_plus": 0.18
+    },
+    "windows": {
+      "original": 1.00,
+      "1970s": 0.90,
+      "1980s": 0.75,
+      "1990s": 0.55,
+      "2000s": 0.40,
+      "2010s_plus": 0.30
+    },
+    "cellar": {
+      "original": 1.00,
+      "1970s": 0.85,
+      "1980s": 0.70,
+      "1990s": 0.55,
+      "2000s": 0.40,
+      "2010s_plus": 0.30
+    }
+  },
+  "buildingTypeFactor": {
+    "_note": "Adjusts heat demand for envelope/floor-area ratio. EFH = 1.0 baseline.",
+    "EFH": 1.00,
+    "Reihenhaus": 0.85,
+    "MFH": 0.75
+  },
+  "ruleOfThumbWPerM2": {
+    "_note": "Specific heating power (W/m²) used for sanity-checking pump sizing. Heat load ≈ W/m² × heated area.",
+    "vor_1980_unrenoviert": 100,
+    "vor_1980_teilsaniert": 70,
+    "1980_2000": 60,
+    "2000_2010": 45,
+    "2010_plus": 30,
+    "minergie": 25
+  }
+}

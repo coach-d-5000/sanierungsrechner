@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "purpose": "Approximate Erdwärmesonde length for cost & subsidy estimation in St. Gallen city / Schweizer Mittelland.",
+    "method": "Combined: energy-based (annual extraction / kWh per meter) and power-based (kW × m/kW). Reports the average.",
+    "sources": [
+      "SIA 384/6:2021 — strenger als 2010er Version: Nachbarsondenprüfung im 30m-Radius, Berücksichtigung realer Betriebsstunden (oft 2500–3000h statt theoretischer 1800h), reduzierte spezifische Entzugsleistung in dichten urbanen Gebieten.",
+      "Stadt St. Gallen Merkblatt: typische EFH-Sonden 150–250m, Förderung max 250m EFH.",
+      "Praxiswert für Stadt St. Gallen 2026: ca. 33 m pro kW Heizleistung (vom Domänenexperten bestätigt; höher als ältere Faustregel von ~22 m/kW wegen der strengeren Auslegung)."
+    ],
+    "warning": "Schätzung für Wirtschaftlichkeitsbetrachtung. Effektive Auslegung erfolgt durch Bohrfirma nach SIA 384/6, inkl. Nachbarsondenprüfung und Standorthöhe."
+  },
+  "specificExtractionEnergyKwhPerMeterYear": 80,
+  "specificExtractionPowerWPerMeter": 40,
+  "powerRuleMetersPerKw": 33,
+  "minRealisticMeters": 100,
+  "typicalEfhRange": { "min": 150, "max": 300 }
+}

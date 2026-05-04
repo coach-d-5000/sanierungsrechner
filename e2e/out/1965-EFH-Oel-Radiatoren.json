@@ -1,0 +1,147 @@
+{
+  "ours": {
+    "heatDemand": {
+      "method": "consumption_quantity",
+      "annualKwh": 19621.8,
+      "spaceHeatingKwh": 16421.8,
+      "hotWaterKwh": 3200,
+      "confidence": "high",
+      "notes": [
+        "Berechnet aus 2200 L × 9.91 kWh/L × Wirkungsgrad 0.9."
+      ]
+    },
+    "current": {
+      "fuelType": "heating_oil",
+      "annualConsumption": 2200,
+      "consumptionUnit": "L",
+      "annualCostChf": 2860,
+      "finalEnergyKwh": 21802,
+      "co2KgPerYear": 5778
+    },
+    "heatPump": {
+      "recommendedModelId": "optiheat_oh_ct_9s",
+      "recommendedModelName": "Optiheat Terra All-in-One OH CT 9s",
+      "source": "brine",
+      "sizingKwAt35": 9,
+      "sizingKwAt55": 8.5,
+      "peakLoadKw": 7.69,
+      "jaz": 3.69,
+      "electricityKwhPerYear": 5323,
+      "annualCostChf": 1331,
+      "co2KgPerYear": 160,
+      "oversizedFactor": 1.1,
+      "borehole": {
+        "meters": 216,
+        "metersByEnergyMethod": 179,
+        "metersByPowerMethod": 254,
+        "inTypicalEfhRange": true,
+        "notes": [
+          "Energiemethode: 14298 kWh/a Entzug ÷ 80 kWh/m·a → 179 m.",
+          "Leistungsmethode: 7.694823529411765 kW × 33 m/kW → 254 m.",
+          "Schätzung. Effektive Auslegung nach SIA 384/6 durch Bohrfirma."
+        ]
+      }
+    },
+    "comparison": {
+      "annualSavingsChf": 1529,
+      "annualSavingsPct": 0.53,
+      "co2SavingsKgPerYear": 5618,
+      "installation": {
+        "source": "brine",
+        "turnkeyChf": 61000,
+        "subsidies": {
+          "total": 18140,
+          "flat": 8500,
+          "cityChf": 9640,
+          "cityMeters": 216,
+          "cityMetersSubsidized": 216,
+          "components": [
+            {
+              "name": "Kanton / Bund Sockel",
+              "chf": 2500
+            },
+            {
+              "name": "Gebäudeprogramm Sole-WP",
+              "chf": 6000
+            },
+            {
+              "name": "Stadt St. Gallen (1000 CHF + 40 CHF × 216 m)",
+              "chf": 9640
+            }
+          ]
+        },
+        "netCostChf": 42860
+      },
+      "payback": {
+        "grossPaybackYears": 28,
+        "withTaxPaybackYears": 23,
+        "withTaxAndValueUpliftYears": 0,
+        "taxSavingChf": 7715,
+        "valueUpliftChf": 61000,
+        "taxDeductibleChf": 42860,
+        "effectiveNetCostChf": 35145,
+        "effectiveNetCostAfterValueUpliftChf": -25855
+      }
+    },
+    "caveats": [
+      "Schätzung basiert auf einem Verbrauchsjahr und öffentlichen Referenzwerten — kein Ersatz für eine suissetec-Detailberechnung."
+    ]
+  },
+  "suissetec": {
+    "uuid": "019dd4f7-86a3-764a-a4a2-075623f2876d",
+    "fullLoadHours": 2550,
+    "calorificValue": 9.91,
+    "heatGeneratorEfficacy": 0.9,
+    "energyUseSummary": {
+      "dataRows": [
+        {
+          "dataRow": {
+            "name": null,
+            "date": "2023-12-31T00:00:00+00:00",
+            "quantity": 2200
+          },
+          "heatingDegreeDays": null,
+          "normalisedEnergyUsage": null
+        },
+        {
+          "dataRow": {
+            "name": null,
+            "date": "2023-12-31T00:00:00+00:00",
+            "quantity": 2200
+          },
+          "heatingDegreeDays": 0,
+          "normalisedEnergyUsage": null
+        },
+        {
+          "dataRow": {
+            "name": null,
+            "date": "2024-12-31T00:00:00+00:00",
+            "quantity": 2200
+          },
+          "heatingDegreeDays": 3192,
+          "normalisedEnergyUsage": null
+        }
+      ],
+      "sum": {
+        "heatingDegreeDays": 3192,
+        "quantity": 2200,
+        "normalisedEnergyUsage": 0,
+        "days": 366
+      },
+      "average": {
+        "heatingDegreeDays": 3386,
+        "energyUsage": 2333,
+        "days": 365
+      }
+    },
+    "endEnergy": 23120,
+    "useEnergy": 20808,
+    "heatingDemand": 8.2,
+    "heatingDemandSpecific": 54.7,
+    "hotWaterDeduction": 0,
+    "requiredHeatOutputWithoutLock": 8.2,
+    "lockPerDay": 2,
+    "requiredHeatOutputWithLock": 8.945454545454545,
+    "buildingTypePerformanceGuaranteeECH": "Bestehende, schlecht wärmegedämmte Wohnhäuser"
+  }
+}

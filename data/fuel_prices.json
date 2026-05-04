@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "purpose": "Swiss end-customer retail energy prices (Hauslieferung / Endverbraucher). Used for converting consumption ↔ cost and projecting future heat-pump electricity cost.",
+    "currency": "CHF",
+    "asOf": "2026-04",
+    "sources": {
+      "heating_oil": "AvEnergy / HEV Schweiz Monatsmittel (3000L Hauslieferung); aktuell ~1.36 CHF/L, 12-Monats-Schnitt ~1.25–1.35.",
+      "natural_gas": "BFE Energiepreise / lokale EVU Tarife.",
+      "wood_pellets": "proPellets.ch Index, 6t-Lieferung.",
+      "electricity": "elcom.admin.ch Strompreise; Wärmepumpentarif laut SAK St. Gallen."
+    },
+    "note": "End-customer prices include VAT, CO2-Abgabe, Lieferung. Refresh quarterly. Volatil — bei Volatilität in der UI Hinweis anzeigen."
+  },
+  "fuels": {
+    "heating_oil": {
+      "unit": "L",
+      "calorificKwhPerUnit": 9.91,
+      "retailPriceChfPerUnit": 1.35,
+      "co2KgPerKwh": 0.265,
+      "annualServiceCostChf": 550,
+      "_source": "AvEnergy 27.04.2026 Schweizer Mittel: 1.36 CHF/L (3000L Hauslieferung). Auf 1.35 abgerundet als Default — repräsentiert aktuelle Marktrealität mit leichtem Forward-Bias.",
+      "_serviceCostSource": "EnergieSchweiz: ~550 CHF/Jahr für Brennerservice, Kaminfeger (jährlich), Feuerungskontrolle (alle 2 Jahre), Tankrevision umgelegt.",
+      "_note": "9.91 kWh/L bestätigt durch suissetec API. Heizöl ist hochvolatil (12-Mt Range 1.25–1.40)."
+    },
+    "natural_gas": {
+      "unit": "kWh",
+      "calorificKwhPerUnit": 1.0,
+      "retailPriceChfPerKwh": 0.125,
+      "co2KgPerKwh": 0.202,
+      "annualServiceCostChf": 300,
+      "_source": "sgsw 2026 St.Galler Gas Basis: 11.79 Rp./kWh + 9.73 CHF/Monat fix. All-in ~12.4 Rp./kWh.",
+      "_serviceCostSource": "Service alle 2 Jahre + Feuerungskontrolle alle 4 Jahre + Kaminfeger umgelegt: ca. 300 CHF/Jahr.",
+      "_note": "0.125 CHF/kWh als runder Default für Heizkunden in SG Stadt."
+    },
+    "wood_pellets": {
+      "unit": "kg",
+      "calorificKwhPerUnit": 5.0,
+      "retailPriceChfPerUnit": 0.55,
+      "co2KgPerKwh": 0.025,
+      "annualServiceCostChf": 450
+    },
+    "wood_logs": {
+      "unit": "Ster",
+      "calorificKwhPerUnit": 1900,
+      "retailPriceChfPerUnit": 110,
+      "co2KgPerKwh": 0.025
+    },
+    "wood_chips": {
+      "unit": "Srm",
+      "calorificKwhPerUnit": 750,
+      "retailPriceChfPerUnit": 50,
+      "co2KgPerKwh": 0.025
+    },
+    "district_heating": {
+      "unit": "kWh",
+      "calorificKwhPerUnit": 1.0,
+      "retailPriceChfPerKwh": 0.135,
+      "co2KgPerKwh": 0.080
+    },
+    "electricity": {
+      "unit": "kWh",
+      "calorificKwhPerUnit": 1.0,
+      "retailPriceChfPerKwh": 0.30,
+      "heatPumpTariffChfPerKwh": 0.30,
+      "co2KgPerKwh": 0.030,
+      "annualServiceCostChf": 100,
+      "heatPumpAnnualServiceCostChf": 250,
+      "_serviceCostSource": "Wärmepumpe: ~250 CHF/Jahr (jährlicher Check, Kältemittel-Prüfung alle 4 Jahre). Pure Elektrodirekt: minimal.",
+      "_source": "sgsw St.Galler Stadtwerke 2026 Tarif K (Basis): HT 32.96 / NT 26.68 Rp./kWh, gewichtet ~40/60 für typisches WP-Profil + Fix-Kosten ≈ 0.30 CHF/kWh.",
+      "_note": "Stand 04/2026: sgsw bietet keinen separaten WP-Sondertarif auf der öffentlichen Tarifseite. Mit der Flexibilitäts-Regulierung 2026 könnte sich das ändern — bei sgsw direkt anfragen, ob Sperrzeit-Vertragsoptionen mit Rabatt existieren.",
+      "_alternativeSources": "ElCom Strompreisrechner für andere Gemeinden: strompreis.elcom.admin.ch"
+    }
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "ours": {
+    "heatDemand": {
+      "method": "consumption_quantity",
+      "annualKwh": 8750,
+      "spaceHeatingKwh": 6350,
+      "hotWaterKwh": 2400,
+      "confidence": "high",
+      "notes": [
+        "Berechnet aus 2500 kg × 5 kWh/kg × Wirkungsgrad 0.7."
+      ]
+    },
+    "current": {
+      "fuelType": "wood_pellets",
+      "annualConsumption": 2500,
+      "consumptionUnit": "kg",
+      "annualCostChf": 1375,
+      "finalEnergyKwh": 12500,
+      "co2KgPerYear": 313
+    },
+    "heatPump": {
+      "recommendedModelId": "optiheat_oh_ct_6s",
+      "recommendedModelName": "Optiheat Terra All-in-One OH CT 6s",
+      "source": "brine",
+      "sizingKwAt35": 6,
+      "sizingKwAt55": 5.5,
+      "peakLoadKw": 3.43,
+      "jaz": 5.14,
+      "electricityKwhPerYear": 1702,
+      "annualCostChf": 426,
+      "co2KgPerYear": 51,
+      "oversizedFactor": 1.75,
+      "borehole": {
+        "meters": 101,
+        "metersByEnergyMethod": 88,
+        "metersByPowerMethod": 113,
+        "inTypicalEfhRange": false,
+        "notes": [
+          "Energiemethode: 7048 kWh/a Entzug ÷ 80 kWh/m·a → 88 m.",
+          "Leistungsmethode: 3.4313725490196076 kW × 33 m/kW → 113 m.",
+          "Rechnerisch unter 100 m — auf wirtschaftliches Minimum aufgerundet.",
+          "Schätzung. Effektive Auslegung nach SIA 384/6 durch Bohrfirma."
+        ]
+      }
+    },
+    "comparison": {
+      "annualSavingsChf": 949,
+      "annualSavingsPct": 0.69,
+      "co2SavingsKgPerYear": 262,
+      "installation": {
+        "source": "brine",
+        "turnkeyChf": 61000,
+        "subsidies": {
+          "total": 13540,
+          "flat": 8500,
+          "cityChf": 5040,
+          "cityMeters": 101,
+          "cityMetersSubsidized": 101,
+          "components": [
+            {
+              "name": "Kanton / Bund Sockel",
+              "chf": 2500
+            },
+            {
+              "name": "Gebäudeprogramm Sole-WP",
+              "chf": 6000
+            },
+            {
+              "name": "Stadt St. Gallen (1000 CHF + 40 CHF × 101 m)",
+              "chf": 5040
+            }
+          ]
+        },
+        "netCostChf": 47460
+      },
+      "payback": {
+        "grossPaybackYears": 50,
+        "withTaxPaybackYears": 41,
+        "withTaxAndValueUpliftYears": 0,
+        "taxSavingChf": 8543,
+        "valueUpliftChf": 61000,
+        "taxDeductibleChf": 47460,
+        "effectiveNetCostChf": 38917,
+        "effectiveNetCostAfterValueUpliftChf": -22083
+      }
+    },
+    "caveats": [
+      "Modell-Auslegung 1.75× — bei Detailplanung verifizieren.",
+      "Sondentiefe 101 m liegt ausserhalb des typischen EFH-Bereichs — durch Bohrfirma prüfen.",
+      "Schätzung basiert auf einem Verbrauchsjahr und öffentlichen Referenzwerten — kein Ersatz für eine suissetec-Detailberechnung."
+    ]
+  },
+  "suissetec": {
+    "uuid": "019dd4f7-8979-7fe5-a3fc-472964c4b8a3",
+    "fullLoadHours": 2550,
+    "calorificValue": 5,
+    "heatGeneratorEfficacy": 0.7,
+    "energyUseSummary": {
+      "dataRows": [
+        {
+          "dataRow": {
+            "name": null,
+            "date": "2023-12-31T00:00:00+00:00",
+            "quantity": 2500
+          },
+          "heatingDegreeDays": null,
+          "normalisedEnergyUsage": null
+        },
+        {
+          "dataRow": {
+            "name": null,
+            "date": "2023-12-31T00:00:00+00:00",
+            "quantity": 2500
+          },
+          "heatingDegreeDays": 0,
+          "normalisedEnergyUsage": null
+        },
+        {
+          "dataRow": {
+            "name": null,
+            "date": "2024-12-31T00:00:00+00:00",
+            "quantity": 2500
+          },
+          "heatingDegreeDays": 3192,
+          "normalisedEnergyUsage": null
+        }
+      ],
+      "sum": {
+        "heatingDegreeDays": 3192,
+        "quantity": 2500,
+        "normalisedEnergyUsage": 0,
+        "days": 366
+      },
+      "average": {
+        "heatingDegreeDays": 3386,
+        "energyUsage": 2651,
+        "days": 365
+      }
+    },
+    "endEnergy": 13255,
+    "useEnergy": 9278.5,
+    "heatingDemand": 3.6,
+    "heatingDemandSpecific": 22.5,
+    "hotWaterDeduction": 0,
+    "requiredHeatOutputWithoutLock": 3.6,
+    "lockPerDay": 2,
+    "requiredHeatOutputWithLock": 3.9272727272727277,
+    "buildingTypePerformanceGuaranteeECH": "Minergie-Gebäude "
+  }
+}
