@@ -1,19 +1,19 @@
 import { createServer } from "node:http";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { estimate } from "../model/estimate.ts";
+import { estimate } from "../supabase/functions/_shared/model/estimate.ts";
 import {
   calculateViaSuissetec,
   fetchPdfFromInput,
   isSupportedBySuissetec,
   type SuissetecCalculationInput,
-} from "../model/suissetecProxy.ts";
+} from "../supabase/functions/_shared/model/suissetecProxy.ts";
 import {
   searchAddresses,
   fetchBuildingByFeatureId,
   lookupAddress,
-} from "../model/gwrLookup.ts";
-import type { EstimationInput } from "../model/types.ts";
+} from "../supabase/functions/_shared/model/gwrLookup.ts";
+import type { EstimationInput } from "../supabase/functions/_shared/model/types.ts";
 
 const PORT = Number(process.env.PORT ?? 8787);
 

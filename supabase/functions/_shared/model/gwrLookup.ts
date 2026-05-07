@@ -28,6 +28,7 @@ export interface GwrBuilding {
   dwellings: number | null;
   groundFloorAreaM2: number | null;
   energyReferenceAreaM2: number | null;
+  dwellingAreasM2: number[] | null;
   volumeM3: number | null;
   heating: HeatingInfo;
   warmWater: WarmWaterInfo;
@@ -122,11 +123,17 @@ export function buildingToPrefill(b: GwrBuilding): PrefillResult {
     );
   }
 
-  const heatedArea = b.energyReferenceAreaM2
+  const wareaSum = b.dwellingAreasM2 != null && b.dwellingAreasM2.length > 0
+    ? b.dwellingAreasM2.reduce((s, v) => s + v, 0)
+    : null;
+
+  const heatedArea = wareaSum
+    ?? b.energyReferenceAreaM2
     ?? (b.groundFloorAreaM2 != null && b.floors != null
         ? Math.round(b.groundFloorAreaM2 * Math.max(1, b.floors) * 0.85)
         : undefined);
-  if (b.energyReferenceAreaM2 == null && heatedArea != null) {
+
+  if (wareaSum == null && b.energyReferenceAreaM2 == null && heatedArea != null) {
     warnings.push(
       `Energiebezugsfläche im GWR nicht erfasst. Schätzung aus Grundfläche × Stockwerke × 0.85 = ${heatedArea} m². ` +
       `Bitte beim Kunden verifizieren.`,
@@ -200,6 +207,12 @@ function mapBuilding(a: Record<string, unknown>): GwrBuilding {
     dwellings: num("ganzwhg"),
     groundFloorAreaM2: num("garea"),
     energyReferenceAreaM2: num("gebf"),
+    dwellingAreasM2: (() => {
+      const raw = a["warea"];
+      if (Array.isArray(raw)) return raw.map(Number).filter(n => n > 0);
+      if (raw != null && Number(raw) > 0) return [Number(raw)];
+      return null;
+    })(),
     volumeM3: num("gvol"),
     heating: {
       primary: {

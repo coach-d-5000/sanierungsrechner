@@ -1,13 +1,13 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { estimate } from "../model/estimate.ts";
+import { estimate } from "../supabase/functions/_shared/model/estimate.ts";
 import {
   calculateViaSuissetec,
   fetchPdfFromInput,
   isSupportedBySuissetec,
   type SuissetecCalculationInput,
-} from "../model/suissetecProxy.ts";
-import type { EstimationInput, FuelType } from "../model/types.ts";
+} from "../supabase/functions/_shared/model/suissetecProxy.ts";
+import type { EstimationInput, FuelType } from "../supabase/functions/_shared/model/types.ts";
 
 interface Scenario {
   label: string;

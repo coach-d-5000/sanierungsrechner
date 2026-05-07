@@ -7,24 +7,24 @@
 //   POST /suissetec/calculate   → suissetec JSON + PDF URL
 //   POST /suissetec/pdf         → application/pdf stream
 
-import { estimate } from "../../../model/estimate.ts";
+import { estimate } from "../_shared/model/estimate.ts";
 import {
   calculateViaSuissetec,
   fetchPdfFromInput,
   isSupportedBySuissetec,
   type SuissetecCalculationInput,
-} from "../../../model/suissetecProxy.ts";
+} from "../_shared/model/suissetecProxy.ts";
 import {
   searchAddresses,
   fetchBuildingByFeatureId,
   lookupAddress,
-} from "../../../model/gwrLookup.ts";
-import type { EstimationInput } from "../../../model/types.ts";
+} from "../_shared/model/gwrLookup.ts";
+import type { EstimationInput } from "../_shared/model/types.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 Deno.serve(async (req) => {
